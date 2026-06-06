@@ -51,9 +51,6 @@
 		loader.register((parser) => {
 			return new VRMLoaderPlugin(parser, {});
 		});
-		loader.register((parser) => {
-			return new VRMAnimationLoaderPlugin(parser);
-		});
 
 		function parseVRM(buffer) {
 			return new Promise((resolve) => {
