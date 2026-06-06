@@ -1007,6 +1007,8 @@ async function makeMesh(state, targets) {
     return index;
 }
 function makeAttribute(state, targets, name, rotate = false) {
+    console.log(targets, name);
+    if (!targets[0].geometry.attributes[name]) return null;
     const length = targets.reduce((sum, target) => sum + target.geometry.attributes[name].array.length, 0);
     const array = new targets[0].geometry.attributes[name].array.constructor(length);
     let offset = 0;
@@ -1025,13 +1027,19 @@ function makeAttribute(state, targets, name, rotate = false) {
 function makeAttributes(state, targets) {
     const name = targets[0].name;
 
-    const POSITION = addAccessor(state, makeAttribute(state, targets, 'position', true), 'VEC3', name + '_position', true);
-    const NORMAL = addAccessor(state, makeAttribute(state, targets, 'normal', true), 'VEC3', name + '_normal', true);
+    const newAttributes = {};
+    const POSITION = makeAttribute(state, targets, 'position', true)
+    if (POSITION != null) newAttributes.POSITION = addAccessor(state, POSITION, 'VEC3', name + '_position', true);
+    const NORMAL = makeAttribute(state, targets, 'normal', true);
+    if (NORMAL != null) newAttributes.NORMAL = addAccessor(state, NORMAL, 'VEC3', name + '_normal', true);
 
-    const TEXCOORD_0 = addAccessor(state, makeAttribute(state, targets, 'uv'), 'VEC2', name + '_uv', true);
-    const JOINTS_0 = addAccessor(state, makeAttribute(state, targets, 'skinIndex'), 'VEC4', name + '_joint', true);
-    const WEIGHTS_0 = addAccessor(state, makeAttribute(state, targets, 'skinWeight'), 'VEC4', name + '_weight', true);
-    return { POSITION, NORMAL, TEXCOORD_0, JOINTS_0, WEIGHTS_0 };
+    const TEXCOORD_0 = makeAttribute(state, targets, 'uv');
+    if (TEXCOORD_0 != null) newAttributes.TEXCOORD_0 = addAccessor(state, TEXCOORD_0, 'VEC2', name + '_uv', true);
+    const JOINTS_0 = makeAttribute(state, targets, 'skinIndex');
+    if (JOINTS_0 != null) newAttributes.JOINTS_0 = addAccessor(state, JOINTS_0, 'VEC4', name + '_joint', true);
+    const WEIGHTS_0 = makeAttribute(state, targets, 'skinWeight');
+    if (WEIGHTS_0 != null) newAttributes.WEIGHTS_0 = addAccessor(state, WEIGHTS_0, 'VEC4', name + '_weight', true);
+    return  newAttributes;
 }
 function makeMorph(state, primitives) {
     if (!primitives[0].morphTargetDictionary) return null;
@@ -1204,8 +1212,8 @@ async function makeScenes(state) {
         if (skinIndex != null) item.skin = skinIndex;
     }
     if (state.metaVersion == 0) {
-        const renderTypes=['Opaque', 'TransparentCutout', 'Transparent', 'TransparentWithZWrite'];
-        const renderOffsets=[2000, 2450, 3000, 3500];
+        const renderTypes = ['Opaque', 'TransparentCutout', 'Transparent', 'TransparentWithZWrite'];
+        const renderOffsets = [2000, 2450, 3000, 3500];
         renderTypes.forEach((renderType, index) => {
             const materials = state.materialQueue.filter(m => m.renderType === renderType);
             const sortedMaterials = materials.sort((a, b) => a.renderOrder - b.renderOrder);
