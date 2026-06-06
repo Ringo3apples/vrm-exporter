@@ -1,41 +1,41 @@
 # VRM Exporter
 
-VRM 0.0/1.0 形式のモデルを変換・エクスポートするJavaScript ライブラリです。Three.js ベースです。
+A JavaScript library for converting and exporting VRM 0.0/1.0 format models. Built with Three.js.
 
-## 概要
+## Overview
 
-`VRMExporter.js` は、three-vrmで読み込んだ VRM インスタンスを解析し、VRM1 または VRM0 のファイル形式でエクスポートするモジュールです。
+`VRMExporter.js` is a module that analyzes VRM instances loaded with three-vrm and exports them in VRM1.0 or VRM0.0 file format.
 
-## インストール
+## Installation
 
 ```bash
 npm install
 ```
 
-このプロジェクトは以下の依存関係を使用します：
+This project uses the following dependencies:
 - Three.js
 
-（サンプル HTML では three-vrm も使用します）
+(The sample HTML also uses three-vrm)
 
-## 使用方法
+## Usage
 
-### basic example
+### Basic Example
 
-`examples/basic.html` をブラウザで開いて実行します：
+Open `examples/basic.html` in your browser:
 
-1. サンプルのVRMモデルを読み込みます
-2. 'Export as VRM0' または 'Export as VRM1' のボタンを押すとエクスポートされます
-3. エクスポート
+1. Load a sample VRM model
+2. Press the 'Export as VRM0' or 'Export as VRM1' button to export
+3. Download the exported file
 
-### プログラムでの使用
+### Programmatic Usage
 
 ```javascript
 import { VRMExport } from './src/VRMExporter.js';
 
-// VRM インスタンスを VRM0 または VRM1 で書き出す
+// Export a VRM instance as VRM0 or VRM1
 const buffer = await VRMExport(vrm, 1); // 1 = VRM1, 0 = VRM0
 
-// バッファを Blob に変換してダウンロード
+// Convert buffer to Blob and download
 const blob = new Blob([buffer], { type: 'application/octet-stream' });
 const url = window.URL.createObjectURL(blob);
 const a = document.createElement('a');
@@ -44,14 +44,14 @@ a.download = 'model.vrm';
 a.click();
 ```
 
-※ `vrm` は three-vrm で読み込んだ VRM インスタンスです。
+*Note: `vrm` is a VRM instance loaded with three-vrm.*
 
-## ファイル構成
+## File Structure
 
-- `src/VRMExporter.js` - メインのエクスポーター モジュール
-- `examples/basic.html` - デモ HTML
-- `models/` - サンプル VRM モデル
+- `src/VRMExporter.js` - Main exporter module
+- `examples/basic.html` - Demo HTML
+- `models/` - Sample VRM models
 
-## ライセンス
+## License
 
 MIT License
