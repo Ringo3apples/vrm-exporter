@@ -43,18 +43,18 @@ a.click();
 
 3種のサンプルを用意しています。
 
-### [basic.html](./examples/basic.html) 
+### [basic.html](https://ringo3apples.github.io/vrm-exporter/examples/basic.html) 
 - ブラウザで開くと，サンプルのVRMモデルを読み込み，`Three.js` で表示します。
 - **Export as VRM0** または **Export as VRM1** のボタンを押すとエクスポートします。
 - VRM0.0もしくはVRM1.0のファイルをドラッグ・ドロップすると読み込んで表示します。
 - VRM0↔️VRM1の間のコンバータとして使えます。
 
-### [halo.html](./examples/halo.html) 
+### [halo.html](https://ringo3apples.github.io/vrm-exporter/examples/halo.html) 
 - **Add Halo** ボタンを押すと，VRMモデルに，`RingGeometory` を取り付けます。
 - **Export as VRM0** または **Export as VRM1** のボタンを押すとエクスポートします。
 - VRMファイルをドラッグ・ドロップして，読み込んだモデルに天使の輪を取り付けることができます。
 
-### [color.html](./examples/color.html) 
+### [color.html](https://ringo3apples.github.io/vrm-exporter/examples/color.html) 
 - ラジをボタンで `Material` を選択し，カラーピッカーでVRMモデルの色を変更できます。
 - **Export as VRM0** または **Export as VRM1** のボタンを押すとエクスポートします。
 - VRMファイルをドラッグ・ドロップして，読み込んだモデルの色変えができます。
