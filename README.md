@@ -43,18 +43,18 @@ a.click();
 
 Three sample programs are included.
 
-### [basic.html](./examples/basic.html) 
+### [basic.html](https://ringo3apples.github.io/vrm-exporter/examples/basic.html) 
 - Opens a sample VRM model and displays it with `Three.js`
 - Press **Export as VRM0** or **Export as VRM1** to export the model
 - Drag and drop VRM0.0 or VRM1.0 files to load and display them
 - Can be used as a converter between VRM0 and VRM1
 
-### [halo.html](./examples/halo.html) 
+### [halo.html](https://ringo3apples.github.io/vrm-exporter/examples/halo.html) 
 - Press **Add Halo** to attach a `RingGeometry` to the VRM model
 - Press **Export as VRM0** or **Export as VRM1** to export the model
 - Drag and drop a VRM file to load it and add a halo effect to the model
 
-### [color.html](./examples/color.html) 
+### [color.html](https://ringo3apples.github.io/vrm-exporter/examples/color.html) 
 - Select a `Material` using the dropdown menu and change the VRM model's color with the color picker
 - Press **Export as VRM0** or **Export as VRM1** to export the model
 - Drag and drop a VRM file to load it and change the colors of the model
