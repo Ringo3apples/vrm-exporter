@@ -1697,7 +1697,7 @@ function makeBlendShapeMaster(state) {
                 blendShapeGroup.binds.push({ mesh, index, weight });
             }
             if (bind.material) {
-                console.log(bind);
+                console.log('Expression bindMaterial not yet supported: ' + bind);
             }
         }
         blendShapeGroup.materialValues = [];
