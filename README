@@ -49,7 +49,7 @@ a.click();
 ## ファイル構成
 
 - `src/VRMExporter.js` - メインのエクスポーター モジュール
-- `examples/simple.html` - デモ HTML
+- `examples/basic.html` - デモ HTML
 - `models/` - サンプル VRM モデル
 
 ## ライセンス
