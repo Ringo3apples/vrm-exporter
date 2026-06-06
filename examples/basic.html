@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>New script test6</title>
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<style>
+		body {
+			margin: 0;
+			background: #000;
+		}
+
+		canvas {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/",
+				"@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.5.3/lib/three-vrm.module.min.js",
+				"@pixiv/three-vrm-animation": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm-animation@3.5.3/lib/three-vrm-animation.module.min.js"
+			}
+		}
+	</script>
+	<script type="module">
+		import * as THREE from 'three';
+		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+		import { VRMLoaderPlugin, VRMUtils, MToonMaterial } from '@pixiv/three-vrm';
+		import { createVRMAnimationClip, VRMAnimationLoaderPlugin, VRMLookAtQuaternionProxy } from '@pixiv/three-vrm-animation';
+		import { VRMExport, conversion } from '../src/VRMExporter.js';
+
+		let model = null;
+		let vrmAnimation = null;
+
+		const { scene } = initialize();
+
+		// GLTFLoader with VRM and VRMAnimation plugins
+		const loader = new GLTFLoader();
+		loader.crossOrigin = 'anonymous';
+		loader.register((parser) => {
+			return new VRMLoaderPlugin(parser, {});
+		});
+		loader.register((parser) => {
+			return new VRMAnimationLoaderPlugin(parser);
+		});
+
+		function parseVRM(buffer) {
+			return new Promise((resolve) => {
+				loader.parse(
+					buffer,
+					'',
+					async (gltf) => {
+						const vrm = gltf.userData.vrm;
+						VRMUtils.removeUnnecessaryVertices(gltf.scene);
+						VRMUtils.combineSkeletons(gltf.scene);
+						//VRMUtils.combineMorphs(vrm); // This would remove additional morph.
+						vrm.scene.traverse((obj) => {
+							obj.frustumCulled = false;
+						});
+						const lookAtQuatProxy = new VRMLookAtQuaternionProxy();
+						lookAtQuatProxy.name = 'lookAtQuaternionProxy';
+						vrm.scene.add(lookAtQuatProxy);
+						//VRMUtils.rotateVRM0(vrm); // VRM0 model will be rotated by my converter.
+						resolve({ vrm, gltf });
+					}
+				);
+			});
+		}
+		await loadVRMA('../models/motion.vrma');
+
+		async function loadVRM(input) {
+			// Remove the existing model if exists.
+			if (model) {
+				scene.remove(model.scene);
+				VRMUtils.deepDispose(model.scene);
+			}
+
+			// Load the VRM file as ArrayBuffer.
+			const buffer = await loadFile(input);
+
+			// Turn VRM0 model, and extract the thumbnail.
+			const converted = await conversion.before(buffer);
+			// Parse the VRM file and get the VRM instance.
+			const { vrm, gltf } = await parseVRM(converted.buffer);
+			// Set the thumbnail, and do some other modifications.
+			model = await conversion.after(vrm, converted.thumbnail);
+
+			scene.add(model.scene);
+			dance(model);
+		}
+
+		async function exportVRM(version = 1) {
+			// Stop the animation.
+			let mixer = model.mixer;
+			model.mixer = null;
+
+			// Reset the pose, constraints, and spring bones to natural position of the T-pose.
+			model.humanoid?.resetRawPose();
+			model.nodeConstraintManager?.update();
+			model.springBoneManager?.reset();
+
+			// Export and save the VRM model.
+			const buffer = await VRMExport(model, version);
+			saveArrayBuffer(buffer, 'exporterVRM.vrm');
+
+			// Restore the animation.
+			model.mixer = mixer;
+		}
+
+		await loadVRM('../models/origin1.0.vrm');
+
+		async function loadFile(input) {
+			// Load a file from File, ArrayBuffer or URL
+			let buffer;
+			if (input instanceof ArrayBuffer) return input;
+			if (input instanceof File) return await input.arrayBuffer();
+			if (typeof input === 'string') {
+				const res = await fetch(input);
+				buffer = await res.arrayBuffer();
+				return buffer;
+			}
+			return error('Unsupported input type');
+		}
+
+		function saveArrayBuffer(buffer, fileName) {
+			const blob = new Blob([buffer], { type: 'application/octet-stream' });
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.style.display = 'none';
+			a.href = url;
+			a.download = fileName;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+		}
+
+		function dance(vrm) {
+			const clip = createVRMAnimationClip(vrmAnimation, vrm);
+			const mixer = new THREE.AnimationMixer(vrm.scene);
+			mixer.clipAction(clip).play();
+			vrm.mixer = mixer;
+		}
+
+		async function loadVRMA(input) {
+			const buffer = await loadFile(input);
+			loader.parse(
+				buffer,
+				'',
+				(gltf) => {
+					vrmAnimation = gltf.userData.vrmAnimations[0];
+					if (model) {
+						model.mixer.stopAllAction();
+						dance(model);
+					}
+				}
+			)
+		}
+
+		function initialize() {
+			const panel = document.createElement('div');
+			panel.style.position = 'absolute';
+			panel.style.top = '0px';
+			panel.style.right = '0px';
+			document.body.appendChild(panel);
+
+			const message = document.createElement('span');
+			message.style.color = 'white';
+			message.innerHTML = 'Drag and drop a VRM or VRMA file to load it.<br>' +
+				'Samples can be found on<br><a href="../model/model0.vrm">model0.vrm</a>, ' +
+				'<a href="../model/model1.vrm">model1.vrm</a>, ' +
+				'and <a href="../model/motion.vrma">motion.vrma</a>.<br>';
+			panel.appendChild(message);
+
+			const export0 = document.createElement('button');
+			export0.innerHTML = 'Export as VRM0';
+			export0.addEventListener('click', () => {
+				exportVRM(0);
+			});
+			panel.appendChild(export0);
+
+			const export1 = document.createElement('button');
+			export1.innerHTML = 'Export as VRM1';
+			export1.addEventListener('click', () => {
+				exportVRM(1);
+			});
+			panel.appendChild(export1);
+
+
+			// renderer
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			document.body.appendChild(renderer.domElement);
+
+			// camera
+			const camera = new THREE.PerspectiveCamera(35.0, window.innerWidth / window.innerHeight, 0.1, 20.0);
+			camera.position.set(0.0, 1.0, 5.0);
+
+			// camera controls
+			const controls = new OrbitControls(camera, renderer.domElement);
+			controls.screenSpacePanning = true;
+			controls.target.set(0.0, 1.0, 0.0);
+			controls.update();
+
+			// scene
+			const scene = new THREE.Scene();
+
+			// light
+			const light = new THREE.DirectionalLight(0xffffff, Math.PI);
+			light.position.set(1.0, 1.0, 1.0).normalize();
+			scene.add(light);
+
+			// helpers
+			const gridHelper = new THREE.GridHelper(10, 10);
+			scene.add(gridHelper);
+			const axesHelper = new THREE.AxesHelper(5);
+			scene.add(axesHelper);
+
+			// animate
+			const timer = new THREE.Timer();
+
+			function animate() {
+				requestAnimationFrame(animate);
+				timer.update();
+				const deltaTime = timer.getDelta();
+				if (model?.mixer) model.mixer.update(deltaTime);
+				if (model) model.update(deltaTime);
+				renderer.render(scene, camera);
+			}
+			animate();
+
+			window.addEventListener('dragover', function (event) {
+				event.preventDefault();
+			});
+
+			window.addEventListener('drop', function (event) {
+				event.preventDefault();
+				const files = event.dataTransfer.files;
+				if (!files || !files[0]) return;
+				const fileName = files[0].name.toLowerCase();
+				if (fileName.endsWith('.vrm')) loadVRM(files[0]);
+				if (fileName.endsWith('.vrma')) loadVRMA(files[0]);
+			});
+			return { scene };
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "vrm-exporter",
+  "version": "0.1.0",
+  "description": "VRM 0.0/1.0 exporter and converter for Three.js",
+  "type": "module",
+  "main": "src/VRMExporter.js",
+  "scripts": {
+    "start": "python -m http.server 8000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/vrm-exporter.git"
+  },
+  "keywords": [
+    "vrm",
+    "three.js",
+    "3d",
+    "exporter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "three": "r184"
+  }
+}
