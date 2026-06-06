@@ -1,10 +1,10 @@
 # VRM Exporter
 
-A JavaScript library for converting and exporting VRM 0.0/1.0 format models. Built with Three.js.
+A JavaScript library for exporting VRM 0.0/1.0 format models. Built with Three.js.
 
 ## Overview
 
-`VRMExporter.js` is a module that analyzes VRM instances loaded with three-vrm and exports them in VRM1.0 or VRM0.0 file format.
+`VRMExporter.js` is a module that analyzes VRM instances loaded with [three-vrm](https://github.com/pixiv/three-vrm) and exports them in VRM1.0 or VRM0.0 file format.
 
 ## Installation
 
@@ -15,24 +15,19 @@ npm install
 This project uses the following dependencies:
 - Three.js
 
-(The sample HTML also uses three-vrm)
+(The sample HTML files also use three-vrm)
 
 ## Usage
 
-### Basic Example
-
-Open `examples/basic.html` in your browser:
-
-1. Load a sample VRM model
-2. Press the 'Export as VRM0' or 'Export as VRM1' button to export
-3. Download the exported file
-
-### Programmatic Usage
+The following example shows how to export a VRM instance loaded with `three-vrm` to a `model.vrm` file.
 
 ```javascript
 import { VRMExport } from './src/VRMExporter.js';
 
-// Export a VRM instance as VRM0 or VRM1
+// Load a VRM file using three-vrm's VRMLoaderPlugin
+// The following vrm is a VRM instance loaded with three-vrm
+
+// Export the VRM instance as VRM0 or VRM1
 const buffer = await VRMExport(vrm, 1); // 1 = VRM1, 0 = VRM0
 
 // Convert buffer to Blob and download
@@ -44,12 +39,32 @@ a.download = 'model.vrm';
 a.click();
 ```
 
-*Note: `vrm` is a VRM instance loaded with three-vrm.*
+## Sample Programs
+
+Three sample programs are included.
+
+### [basic.html](./examples/basic.html) 
+- Opens a sample VRM model and displays it with `Three.js`
+- Press **Export as VRM0** or **Export as VRM1** to export the model
+- Drag and drop VRM0.0 or VRM1.0 files to load and display them
+- Can be used as a converter between VRM0 and VRM1
+
+### [halo.html](./examples/halo.html) 
+- Press **Add Halo** to attach a `RingGeometry` to the VRM model
+- Press **Export as VRM0** or **Export as VRM1** to export the model
+- Drag and drop a VRM file to load it and add a halo effect to the model
+
+### [color.html](./examples/color.html) 
+- Select a `Material` using the dropdown menu and change the VRM model's color with the color picker
+- Press **Export as VRM0** or **Export as VRM1** to export the model
+- Drag and drop a VRM file to load it and change the colors of the model
 
 ## File Structure
 
 - `src/VRMExporter.js` - Main exporter module
-- `examples/basic.html` - Demo HTML
+- `examples/basic.html` - Basic demo HTML
+- `examples/color.html` - Material adjustment demo HTML
+- `examples/halo.html` - Mesh addition demo HTML
 - `models/` - Sample VRM models
 
 ## License

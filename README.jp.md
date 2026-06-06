@@ -65,7 +65,7 @@ a.click();
 - `examples/basic.html` - 基本的なデモ HTML
 - `examples/color.html` - マテリアル調整のデモ HTML
 - `examples/halo.html` - メッシュ追加のデモ HTML
-- `models/` - サンプル VRMモデル・VRMAモーション
+- `models/` - サンプル VRMモデル
 
 ## ライセンス
 

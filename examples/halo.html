@@ -35,7 +35,6 @@
 		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 		import { VRMLoaderPlugin, VRMUtils, MToonMaterial } from '@pixiv/three-vrm';
-		import { createVRMAnimationClip, VRMAnimationLoaderPlugin, VRMLookAtQuaternionProxy } from '@pixiv/three-vrm-animation';
 		import { VRMExport, conversion } from '../src/VRMExporter.js';
 
 		let model = null;
@@ -48,9 +47,6 @@
 		loader.crossOrigin = 'anonymous';
 		loader.register((parser) => {
 			return new VRMLoaderPlugin(parser, {});
-		});
-		loader.register((parser) => {
-			return new VRMAnimationLoaderPlugin(parser);
 		});
 
 		function parseVRM(buffer) {
@@ -66,16 +62,12 @@
 						vrm.scene.traverse((obj) => {
 							obj.frustumCulled = false;
 						});
-						const lookAtQuatProxy = new VRMLookAtQuaternionProxy();
-						lookAtQuatProxy.name = 'lookAtQuaternionProxy';
-						vrm.scene.add(lookAtQuatProxy);
 						//VRMUtils.rotateVRM0(vrm); // VRM0 model will be rotated by my converter.
 						resolve({ vrm, gltf });
 					}
 				);
 			});
 		}
-		await loadVRMA('../models/motion.vrma');
 
 		async function loadVRM(input) {
 			// Remove the existing model if exists.
@@ -95,7 +87,6 @@
 			model = await conversion.after(vrm, converted.thumbnail);
 
 			scene.add(model.scene);
-			dance(model);
 		}
 
 		function addHalo() {
@@ -109,20 +100,14 @@
 				side: THREE.DoubleSide,
 				depthWrite: false,
 			});
-			console.log(material);
 			const mesh = new THREE.Mesh(geometry, material);
 			mesh.rotation.x = Math.PI / 2;
 			mesh.position.y = 0.25;
 			const head = model.humanoid?.getBoneNode('head');
-			console.log(head);
 			if (head) head.add(mesh);
 		}
 
 		async function exportVRM(version = 1) {
-			// Stop the animation.
-			let mixer = model.mixer;
-			model.mixer = null;
-
 			// Reset the pose, constraints, and spring bones to natural position of the T-pose.
 			model.humanoid?.resetRawPose();
 			model.nodeConstraintManager?.update();
@@ -131,9 +116,6 @@
 			// Export and save the VRM model.
 			const buffer = await VRMExport(model, version);
 			saveArrayBuffer(buffer, 'exporterVRM.vrm');
-
-			// Restore the animation.
-			model.mixer = mixer;
 		}
 
 		await loadVRM('../models/model1.vrm');
@@ -162,28 +144,6 @@
 			a.click();
 			window.URL.revokeObjectURL(url);
 			document.body.removeChild(a);
-		}
-
-		function dance(vrm) {
-			const clip = createVRMAnimationClip(vrmAnimation, vrm);
-			const mixer = new THREE.AnimationMixer(vrm.scene);
-			mixer.clipAction(clip).play();
-			vrm.mixer = mixer;
-		}
-
-		async function loadVRMA(input) {
-			const buffer = await loadFile(input);
-			loader.parse(
-				buffer,
-				'',
-				(gltf) => {
-					vrmAnimation = gltf.userData.vrmAnimations[0];
-					if (model) {
-						model.mixer.stopAllAction();
-						dance(model);
-					}
-				}
-			)
 		}
 
 		function initialize() {
@@ -260,7 +220,6 @@
 				requestAnimationFrame(animate);
 				timer.update();
 				const deltaTime = timer.getDelta();
-				if (model?.mixer) model.mixer.update(deltaTime);
 				if (model) model.update(deltaTime);
 				renderer.render(scene, camera);
 			}
@@ -276,7 +235,6 @@
 				if (!files || !files[0]) return;
 				const fileName = files[0].name.toLowerCase();
 				if (fileName.endsWith('.vrm')) loadVRM(files[0]);
-				if (fileName.endsWith('.vrma')) loadVRMA(files[0]);
 			});
 			return { scene };
 		}

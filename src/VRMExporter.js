@@ -1007,7 +1007,6 @@ async function makeMesh(state, targets) {
     return index;
 }
 function makeAttribute(state, targets, name, rotate = false) {
-    console.log(targets, name);
     if (!targets[0].geometry.attributes[name]) return null;
     const length = targets.reduce((sum, target) => sum + target.geometry.attributes[name].array.length, 0);
     const array = new targets[0].geometry.attributes[name].array.constructor(length);
