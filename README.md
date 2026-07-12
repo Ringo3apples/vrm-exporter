@@ -67,6 +67,10 @@ Three sample programs are included.
 - `examples/halo.html` - Mesh addition demo HTML
 - `models/` - Sample VRM models
 
+## Notes
+- `MaterialColorBind` and `TextureTransformBind` in Expressions are not supported.
+- `node_constraint` is ignored in VRM 0.0.
+
 ## License
 
 MIT License
