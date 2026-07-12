@@ -67,6 +67,11 @@ a.click();
 - `examples/halo.html` - メッシュ追加のデモ HTML
 - `models/` - サンプル VRMモデル
 
+## 注意事項 (Note)
+
+- Expression の MaterialColorBind と TextureTransformBind には対応していません。 
+- node_constraint は，VRM0.0では無視されます。
+
 ## ライセンス
 
 MIT License
