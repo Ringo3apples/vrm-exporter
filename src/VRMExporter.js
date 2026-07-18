@@ -755,6 +755,8 @@ async function makeMaterialProperties(state, main, renderOrder) {
         tagMap.RenderType = 'Transparent';
         keywordMap._ALPHABLEND_ON = true;
         floatProperties._BlendMode = 2;
+        floatProperties._SrcBlend = 5;
+        floatProperties._DstBlend = 10;
         floatProperties._ZWrite = main.depthWrite ? 1 : 0;
         if (main.depthWrite) {
             renderType = 'TransparentWithZWrite';
