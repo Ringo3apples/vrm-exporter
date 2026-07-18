@@ -69,8 +69,8 @@ a.click();
 
 ## 注意事項 (Note)
 
-- Expression の MaterialColorBind と TextureTransformBind には対応していません。 
 - node_constraint は，VRM0.0では無視されます。
+- Expression の MaterialColorBind と TextureTransformBind に対応しました。(2026/07/18)
 
 ## ライセンス
 

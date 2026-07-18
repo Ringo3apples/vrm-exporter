@@ -68,8 +68,8 @@ Three sample programs are included.
 - `models/` - Sample VRM models
 
 ## Notes
-- `MaterialColorBind` and `TextureTransformBind` in Expressions are not supported.
 - `node_constraint` is ignored in VRM 0.0.
+- `MaterialColorBind` and `TextureTransformBind` in Expressions are now supported. (2026/07/18)
 
 ## License
 
