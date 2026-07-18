@@ -1430,14 +1430,18 @@ function makeExpressions(state) {
                     }
                 }
             }
-            if (bind.material) {
-                const material = state.materialMap[bind.material];
-                if (bind.offset || bind.scale) {
+            if (bind.material && !bind.material.isOutline) {
+                const material = state.materialMap.get(bind.material);
+                if (bind.offset && bind.scale) {
                     const scale = bind.scale.toArray();
                     const offset = bind.offset.toArray();
                     textureTransformBinds.push({ material, scale, offset });
-                } else {
-                    //materialColorBinds.push({ material, type, targetValue });
+                }
+                if (bind.type && bind.targetValue ) {
+                    const type = bind.type;
+                    const targetValue = bind.targetValue.toArray();
+                    targetValue.push(bind.targetAlpha);
+                    materialColorBinds.push({ material, type, targetValue });
                 }
             }
         }
@@ -1683,6 +1687,13 @@ function makeBlendShapeMaster(state) {
         blinkRight: ['Blink_R', 'blink_r'],
         surprised: ['Surprised', 'unknown']
     };
+    const propertyNames = {
+        color: '_Color',
+        emissionColor: '_EmissionColor',
+        shadeColor: '_ShadeColor',
+        rimColor: '_RimColor',
+        outlineColor: '_OutlineColor'
+    };
 
     const expressions = state.org.expressionManager._expressions;
     const blendShapeGroups = [];
@@ -1696,6 +1707,7 @@ function makeBlendShapeMaster(state) {
         }
         blendShapeGroup.isBinary = expression.isBinary;
         blendShapeGroup.binds = [];
+        blendShapeGroup.materialValues = [];
         for (const bind of expression._binds) {
             if (bind.primitives) {
                 const mesh = state.meshMap.get(bind.primitives[0]);
@@ -1703,11 +1715,14 @@ function makeBlendShapeMaster(state) {
                 const weight = bind.weight * 100;
                 blendShapeGroup.binds.push({ mesh, index, weight });
             }
-            if (bind.material) {
-                console.log('Expression bindMaterial not yet supported: ' + bind);
+            if (bind.material && !bind.material.isOutline) {
+                const materialName = bind.material.name;
+                const propertyName = propertyNames[bind.type];
+                const targetValue = bind.targetValue.toArray();
+                targetValue.push(bind.targetAlpha);
+                blendShapeGroup.materialValues.push({ materialName, propertyName, targetValue });
             }
         }
-        blendShapeGroup.materialValues = [];
         blendShapeGroups.push(blendShapeGroup);
     });
     state.extensions.VRM.blendShapeMaster = { blendShapeGroups };
