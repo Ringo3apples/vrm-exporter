@@ -952,7 +952,7 @@ async function makeMesh(state, targets) {
                     array[i + 2] = -array[i + 2];
                 }
             }
-            primitive.attributes.NORMAL = addAccessor(state, array, 'VEC3', target.name + '_normal', true);
+            primitive.attributes.NORMAL = addAccessor(state, array, 'VEC3', target.name + '_normal', false);
         }
         if (target.geometry.attributes?.skinIndex) primitive.attributes.JOINTS_0 = addAccessor(state,
             target.geometry.attributes.skinIndex.array, 'VEC4', target.name + '_joint', false
@@ -1032,14 +1032,14 @@ function makeAttributes(state, targets) {
     const POSITION = makeAttribute(state, targets, 'position', true)
     if (POSITION != null) newAttributes.POSITION = addAccessor(state, POSITION, 'VEC3', name + '_position', true);
     const NORMAL = makeAttribute(state, targets, 'normal', true);
-    if (NORMAL != null) newAttributes.NORMAL = addAccessor(state, NORMAL, 'VEC3', name + '_normal', true);
+    if (NORMAL != null) newAttributes.NORMAL = addAccessor(state, NORMAL, 'VEC3', name + '_normal', false);
 
     const TEXCOORD_0 = makeAttribute(state, targets, 'uv');
     if (TEXCOORD_0 != null) newAttributes.TEXCOORD_0 = addAccessor(state, TEXCOORD_0, 'VEC2', name + '_uv', true);
     const JOINTS_0 = makeAttribute(state, targets, 'skinIndex');
-    if (JOINTS_0 != null) newAttributes.JOINTS_0 = addAccessor(state, JOINTS_0, 'VEC4', name + '_joint', true);
+    if (JOINTS_0 != null) newAttributes.JOINTS_0 = addAccessor(state, JOINTS_0, 'VEC4', name + '_joint', false);
     const WEIGHTS_0 = makeAttribute(state, targets, 'skinWeight');
-    if (WEIGHTS_0 != null) newAttributes.WEIGHTS_0 = addAccessor(state, WEIGHTS_0, 'VEC4', name + '_weight', true);
+    if (WEIGHTS_0 != null) newAttributes.WEIGHTS_0 = addAccessor(state, WEIGHTS_0, 'VEC4', name + '_weight', false);
     return  newAttributes;
 }
 function makeMorph(state, primitives) {
@@ -1071,7 +1071,7 @@ function makeMorph(state, primitives) {
     for (let i = 0; i < targetNames.length; i++) {
         const name = targetNames[i];
         const POSITION = addAccessor(state, makeMorpfTarget(state, primitives, 'position', i), 'VEC3', name + '_position', true);
-        const NORMAL = addAccessor(state, makeMorpfTarget(state, primitives, 'normal', i), 'VEC3', name + '_normal', true);
+        const NORMAL = addAccessor(state, makeMorpfTarget(state, primitives, 'normal', i), 'VEC3', name + '_normal', false);
         targets.push({ POSITION, NORMAL });
     }
     return { targets, targetNames };
