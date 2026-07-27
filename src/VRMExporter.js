@@ -1052,8 +1052,6 @@ function makeMorph(state, primitives) {
     }
 
     function makeMorpfTarget(state, primitives, name, i) {
-        console.log('makeMorpfTarget', name, i, primitives);
-        primitives.forEach((target, index) => { console.log('target', target.name, target.geometry.attributes[name]) });
         const length = primitives.reduce((sum, target) => {
             return sum + target.geometry.attributes.position.array.length;
         }, 0);
