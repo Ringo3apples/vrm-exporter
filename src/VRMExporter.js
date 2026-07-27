@@ -1040,7 +1040,7 @@ function makeAttributes(state, targets) {
     if (JOINTS_0 != null) newAttributes.JOINTS_0 = addAccessor(state, JOINTS_0, 'VEC4', name + '_joint', false);
     const WEIGHTS_0 = makeAttribute(state, targets, 'skinWeight');
     if (WEIGHTS_0 != null) newAttributes.WEIGHTS_0 = addAccessor(state, WEIGHTS_0, 'VEC4', name + '_weight', false);
-    return  newAttributes;
+    return newAttributes;
 }
 function makeMorph(state, primitives) {
     if (!primitives[0].morphTargetDictionary) return null;
@@ -1052,12 +1052,21 @@ function makeMorph(state, primitives) {
     }
 
     function makeMorpfTarget(state, primitives, name, i) {
-        const length = primitives.reduce((sum, target) => sum + target.geometry.morphAttributes[name][0].array.length, 0);
-        const array = new primitives[0].geometry.morphAttributes[name][0].array.constructor(length);
+        console.log('makeMorpfTarget', name, i, primitives);
+        primitives.forEach((target, index) => { console.log('target', target.name, target.geometry.attributes[name]) });
+        const length = primitives.reduce((sum, target) => {
+            return sum + target.geometry.attributes.position.array.length;
+        }, 0);
+        const array = new Float32Array(length);
         let offset = 0;
         for (let j = 0; j < primitives.length; j++) {
-            array.set(primitives[j].geometry.morphAttributes[name][i].array, offset);
-            offset += primitives[j].geometry.morphAttributes[name][i].array.length;
+            const target = primitives[j];
+            const morphAttr = target.geometry.morphAttributes[name];
+            const posLen = target.geometry.attributes.position.array.length;
+            if (morphAttr && morphAttr[i] && morphAttr[i].array) {
+                array.set(morphAttr[i].array, offset);
+            }
+            offset += posLen;
         }
         if (state.metaVersion == 0) {
             for (let i = 0; i < array.length; i += 3) {
@@ -1412,9 +1421,14 @@ function makeSecondaryAnimation(state) {
 }
 
 function makeExpressions(state) {
-    const expressions = {};
+    const VRM1_PRESETS = new Set([
+        'happy', 'angry', 'sad', 'relaxed', 'surprised',
+        'aa', 'ih', 'ou', 'ee', 'oh',
+        'blink', 'blinkLeft', 'blinkRight',
+        'lookUp', 'lookDown', 'lookLeft', 'lookRight', 'neutral'
+    ]);
     const expressionMap = state.org.expressionManager._expressionMap;
-    expressions.preset = {};
+    const expressions = { preset: {}, custom: {} };
     for (const name in expressionMap) {
         const morphTargetBinds = [];
         const materialColorBinds = [];
@@ -1439,7 +1453,7 @@ function makeExpressions(state) {
                     const offset = bind.offset.toArray();
                     textureTransformBinds.push({ material, scale, offset });
                 }
-                if (bind.type && bind.targetValue ) {
+                if (bind.type && bind.targetValue) {
                     const type = bind.type;
                     const targetValue = bind.targetValue.toArray();
                     targetValue.push(bind.targetAlpha);
@@ -1447,16 +1461,22 @@ function makeExpressions(state) {
                 }
             }
         }
-        expressions.preset[name] = {
+        const expression = {
             isBinary: expressionMap[name].isBinary,
             //morphTargetBinds: morphTargetBinds,
             overrideBlink: expressionMap[name].overrideBlink,
             overrideLookAt: expressionMap[name].overrideLookAt,
             overrideMouth: expressionMap[name].overrideMouth
         };
-        if (morphTargetBinds.length > 0) expressions.preset[name].morphTargetBinds = morphTargetBinds;
-        if (textureTransformBinds.length > 0) expressions.preset[name].textureTransformBinds = textureTransformBinds;
-        if (materialColorBinds.length > 0) expressions.preset[name].materialColorBinds = materialColorBinds;
+        if (morphTargetBinds.length > 0) expression.morphTargetBinds = morphTargetBinds;
+        if (textureTransformBinds.length > 0) expression.textureTransformBinds = textureTransformBinds;
+        if (materialColorBinds.length > 0) expression.materialColorBinds = materialColorBinds;
+
+        if (VRM1_PRESETS.has(name)) {
+            expressions.preset[name] = expression;
+        }else{
+            expressions.custom[name] = expression;
+        }
     }
     state.extensions.VRMC_vrm.expressions = expressions;
 }
@@ -1721,7 +1741,7 @@ function makeBlendShapeMaster(state) {
                 const materialName = bind.material.name;
                 const propertyName = propertyNames[bind.type];
                 const targetValue = bind.targetValue.toArray();
-                targetValue.push(bind.targetAlpha);
+                targetValue.push(bind.targetAlpha ?? 1.0);
                 blendShapeGroup.materialValues.push({ materialName, propertyName, targetValue });
             }
         }
