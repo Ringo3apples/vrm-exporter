@@ -1,3 +1,6 @@
+/*
+VRM Exporter v1.0.3 2026-07-28
+*/
 import * as THREE from 'three';
 
 const ComponentType = {
