@@ -1435,17 +1435,14 @@ function makeExpressions(state) {
         const materialColorBinds = [];
         const textureTransformBinds = [];
         const nodeCheck = {};
-        for (const bind of expressionMap[name]._binds) {
+        for (const bind of expressionMap[name].binds) {
             if (bind.primitives) {
-                for (const primitive of bind.primitives) {
-                    const node = state.nodeMap.get(primitive.parent);
-                    if (!nodeCheck[node]) {
+                //for (const primitive of bind.primitives) {
+                    const node = state.nodeMap.get(bind.primitives[0].parent);
                         const index = bind.index;
                         const weight = bind.weight;
                         morphTargetBinds.push({ index, node, weight });
-                        nodeCheck[node] = true;
-                    }
-                }
+                //}
             }
             if (bind.material && !bind.material.isOutline) {
                 const material = state.materialMap.get(bind.material);
@@ -1461,6 +1458,7 @@ function makeExpressions(state) {
                     materialColorBinds.push({ material, type, targetValue });
                 }
             }
+            if(name == 'Extra') console.log(name, morphTargetBinds);
         }
         const expression = {
             isBinary: expressionMap[name].isBinary,
@@ -1731,7 +1729,7 @@ function makeBlendShapeMaster(state) {
         blendShapeGroup.isBinary = expression.isBinary;
         blendShapeGroup.binds = [];
         blendShapeGroup.materialValues = [];
-        for (const bind of expression._binds) {
+        for (const bind of expression.binds) {
             if (bind.primitives) {
                 const mesh = state.meshMap.get(bind.primitives[0]);
                 const index = bind.index;
