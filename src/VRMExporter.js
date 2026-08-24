@@ -1361,7 +1361,7 @@ function makeSecondaryAnimation(state) {
     const boneGroupMap = new Map();
     state.springBoneRoots.forEach((joint) => {
         const boneGroup = {};
-        boneGroup.center = state.nodeMap.get(joint._center);
+        boneGroup.center = joint._center ? state.nodeMap.get(joint._center): -1;
         boneGroup.dragForce = joint.settings.dragForce;
         boneGroup.gravityDir = { ...joint.settings.gravityDir };
         boneGroup.gravityDir.x = -boneGroup.gravityDir.x;
@@ -1370,6 +1370,7 @@ function makeSecondaryAnimation(state) {
         boneGroup.hitRadius = joint.settings.hitRadius;
         boneGroup.stiffiness = joint.settings.stiffness;
         boneGroup.colliderGroups = [];
+        console.log(boneGroup.center, joint);
 
         const colliderMap = new Map();
         joint.colliderGroups.forEach(colliderGroup => {
