@@ -1,5 +1,5 @@
 /*
-VRM Exporter v1.0.3 2026-07-28
+VRM Exporter v1.0.4 2026-08-24
 */
 import * as THREE from 'three';
 
@@ -1438,10 +1438,10 @@ function makeExpressions(state) {
         for (const bind of expressionMap[name].binds) {
             if (bind.primitives) {
                 //for (const primitive of bind.primitives) {
-                    const node = state.nodeMap.get(bind.primitives[0].parent);
-                        const index = bind.index;
-                        const weight = bind.weight;
-                        morphTargetBinds.push({ index, node, weight });
+                const node = state.nodeMap.get(bind.primitives[0].parent);
+                const index = bind.index;
+                const weight = bind.weight;
+                morphTargetBinds.push({ index, node, weight });
                 //}
             }
             if (bind.material && !bind.material.isOutline) {
@@ -1458,7 +1458,7 @@ function makeExpressions(state) {
                     materialColorBinds.push({ material, type, targetValue });
                 }
             }
-            if(name == 'Extra') console.log(name, morphTargetBinds);
+            if (name == 'Extra') console.log(name, morphTargetBinds);
         }
         const expression = {
             isBinary: expressionMap[name].isBinary,
@@ -1473,7 +1473,7 @@ function makeExpressions(state) {
 
         if (VRM1_PRESETS.has(name)) {
             expressions.preset[name] = expression;
-        }else{
+        } else {
             expressions.custom[name] = expression;
         }
     }
@@ -1737,11 +1737,13 @@ function makeBlendShapeMaster(state) {
                 blendShapeGroup.binds.push({ mesh, index, weight });
             }
             if (bind.material && !bind.material.isOutline) {
-                const materialName = bind.material.name;
-                const propertyName = propertyNames[bind.type];
-                const targetValue = bind.targetValue.toArray();
-                targetValue.push(bind.targetAlpha ?? 1.0);
-                blendShapeGroup.materialValues.push({ materialName, propertyName, targetValue });
+                if (bind.type && bind.targetValue) {
+                    const materialName = bind.material.name;
+                    const propertyName = propertyNames[bind.type];
+                    const targetValue = bind.targetValue.toArray();
+                    targetValue.push(bind.targetAlpha ?? 1.0);
+                    blendShapeGroup.materialValues.push({ materialName, propertyName, targetValue });
+                }
             }
         }
         blendShapeGroups.push(blendShapeGroup);
