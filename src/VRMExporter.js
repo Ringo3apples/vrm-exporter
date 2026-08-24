@@ -1370,7 +1370,6 @@ function makeSecondaryAnimation(state) {
         boneGroup.hitRadius = joint.settings.hitRadius;
         boneGroup.stiffiness = joint.settings.stiffness;
         boneGroup.colliderGroups = [];
-        console.log(boneGroup.center, joint);
 
         const colliderMap = new Map();
         joint.colliderGroups.forEach(colliderGroup => {
