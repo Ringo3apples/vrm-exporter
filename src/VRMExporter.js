@@ -834,7 +834,7 @@ async function makeMaterialProperties(state, main, renderOrder) {
     }
     floatProperties._OutlineWidthMode = { none: 0, worldCoordinates: 1, screenCoordinates: 2 }[main.outlineWidthMode];
     if (main.outlineWidthFactor != 0)
-        floatProperties._OutlineWidth = main.outlineWidthFactor * 100;
+        floatProperties._OutlineWidth = main.outlineWidthFactor ? main.outlineWidthFactor * 100: 0;
     if (main.outlineWidthMultiplyTexture)
         await addTexture2(main.outlineWidthMultiplyTexture, '_OutlineWidthTexture');
 
